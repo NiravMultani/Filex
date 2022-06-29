@@ -4,8 +4,6 @@ import { AwsS3 } from './storage-providers/aws-s3';
 
 @Module({
   providers: [StorageFactoryService, AwsS3],
-  exports: [StorageFactoryService]
+  exports: [StorageFactoryService],
 })
-export class StorageFactoryModule {
-
-}
+export class StorageFactoryModule {}

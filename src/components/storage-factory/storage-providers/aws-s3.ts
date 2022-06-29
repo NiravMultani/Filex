@@ -40,9 +40,8 @@ export class AwsS3 implements IBaseStorageProvider {
   async getPreSignedUrl(id: string): Promise<string> {
     try {
       const signedUrlParams: IGetSignedUrlRequest = {
-
         ACL: 'public-read',
-      }
+      };
       const preSignedUrl = await this.s3
         .getSignedUrlPromise('putObject', signedUrlParams)
         .then((signedUrl: string) => {
@@ -58,6 +57,7 @@ export class AwsS3 implements IBaseStorageProvider {
       throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
     }
   }
+
   uploadFile(): string {
     throw new Error('Method not implemented.');
   }
