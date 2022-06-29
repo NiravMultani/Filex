@@ -7,7 +7,6 @@ export default registerAs(EnvNamespaces.AWS, () => {
     region: process.env.AWS_REGION,
     accessKey: process.env.AWS_ACCESS_KEY,
     secretKey: process.env.AWS_SECRET_KEY,
-    s3EnvName: process.env.S3_ENV_NAME,
     uploadLocations: {
       base: 'media',
     },
