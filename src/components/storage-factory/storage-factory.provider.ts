@@ -7,10 +7,11 @@ import {
 } from '../../config';
 import { exhaustiveCheck } from '../../helpers/exhaust-check';
 import { AwsS3 } from './storage-providers/aws-s3';
+import { IBaseStorageProvider } from './storage-providers/base-storage-provider.interface';
 
 const logger = new Logger('StorageFactoryProvider');
 
-export const getDefaultRedisProvider = (): Provider => {
+export const getDefaultStorageProvider = (): Provider => {
   return {
     provide: CustomProvidesTokens.STORAGE_FACTORY_INSTANCE,
 
