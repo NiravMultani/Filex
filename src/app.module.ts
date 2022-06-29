@@ -1,14 +1,23 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AwsS3Module } from './components/aws-s3/aws-s3.module';
-import { AzureBlobModule } from './components/azure-blob/azure-blob.module';
-import { StorageModule } from './components/storage/storage.module';
 import { StorageFactoryModule } from './components/storage-factory/storage-factory.module';
+import { StorageModule } from './components/storage/storage.module';
+import { validateEnv } from './config';
+import awsConfig from './config/env-config-list/aws.config';
 
 @Module({
-  imports: [AwsS3Module, AzureBlobModule, StorageModule, StorageFactoryModule],
+  imports: [
+    // Configure environment variables
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validate: validateEnv,
+      load: [awsConfig],
+    }),
+    StorageModule,
+    StorageFactoryModule,
+  ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [],
 })
 export class AppModule {}
