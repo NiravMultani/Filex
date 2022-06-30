@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
-import { StorageFactoryModule } from './components/storage-factory/storage-factory.module';
 import { StorageModule } from './components/storage/storage.module';
 import { validateEnv } from './config';
 import awsConfig from './config/env-config-list/aws.config';
+import commonConfig from './config/env-config-list/common.config';
 
 @Module({
   imports: [
@@ -12,10 +12,9 @@ import awsConfig from './config/env-config-list/aws.config';
     ConfigModule.forRoot({
       isGlobal: true,
       validate: validateEnv,
-      load: [awsConfig],
+      load: [awsConfig, commonConfig],
     }),
     StorageModule,
-    StorageFactoryModule,
   ],
   controllers: [AppController],
   providers: [],
