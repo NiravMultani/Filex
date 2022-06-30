@@ -10,8 +10,11 @@ export class StorageFactoryService {
     private readonly instance: IBaseStorageProvider,
   ) {}
 
-  async test(): Promise<string> {
-    // this.instance.uploadFile()
-    return 'asfdasf';
-  }
+  uploadFile = this.instance.uploadFile;
+
+  downloadFile = this.instance.downloadFile;
+
+  listAllFiles = this.instance.listAllFiles;
+
+  getPreSignedUrl = this.instance.getPreSignedUrl;
 }
