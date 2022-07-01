@@ -6,7 +6,8 @@ export interface IBaseStorageProvider {
   downloadFile(id: string): Promise<string>;
   getPreSignedUrl(id: string): Promise<string>;
   uploadFile(
-    body: Buffer | Uint8Array | Blob | string | Readable,
+    body: Buffer | Blob, // common between both azure and aws
+    // body: Buffer | Uint8Array | Blob | string | Readable, // from aws
     fileName: string,
   ): Promise<string>;
 }

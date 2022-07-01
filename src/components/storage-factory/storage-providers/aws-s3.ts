@@ -52,6 +52,7 @@ export class AwsS3 implements IBaseStorageProvider {
           2,
         )}`,
       );
+      // TODO: update return
       return [];
     } catch (err) {
       this.logger.error(`unable to list all files ${JSON.stringify(err)}`);
