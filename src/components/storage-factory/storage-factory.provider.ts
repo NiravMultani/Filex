@@ -15,7 +15,7 @@ export const getDefaultStorageProvider = (): Provider => {
   return {
     provide: CustomProvidesTokens.STORAGE_FACTORY_INSTANCE,
 
-    inject: [ConfigService],
+    inject: [ConfigService, AwsS3],
 
     useFactory: (
       configService: ConfigService,
@@ -30,6 +30,13 @@ export const getDefaultStorageProvider = (): Provider => {
 
       switch (activeCloudProvider) {
         case CloudProviders.AWS:
+          if (awsS3 === undefined) {
+            logger.error(
+              `AWS S3 Not registered : value : ${awsS3} : type : ${typeof awsS3}`,
+            );
+            /* If you see this error than it means you're using a param in `useFactory` that you didn't injected through `inject` array */
+            process.exit(1);
+          }
           return awsS3;
         case CloudProviders.AZURE:
           break;

@@ -28,7 +28,7 @@ export class StorageController {
   }
 
   // Get pre signed URL for a file
-  @Get('/:fileName')
+  @Get('/signed/:fileName')
   async getPreSignedURL(@Param('fileName') fileName: string) {
     return this.storageFactory.getPreSignedUrl(fileName);
   }
