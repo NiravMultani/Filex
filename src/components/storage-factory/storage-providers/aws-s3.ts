@@ -38,7 +38,7 @@ export class AwsS3 implements IBaseStorageProvider {
     }/${encodeURI(fileName)}`;
   };
 
-  async listAllFiles(): Promise<string[]> {
+  listAllFiles = async (): Promise<string[]> => {
     try {
       const s3Objects = await this.s3
         .listObjects({
@@ -57,9 +57,9 @@ export class AwsS3 implements IBaseStorageProvider {
       this.logger.error(`unable to list all files ${JSON.stringify(err)}`);
       throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
     }
-  }
+  };
 
-  async downloadFile(id: string): Promise<string> {
+  downloadFile = async (id: string): Promise<string> => {
     try {
       const fileData = await this.s3
         .getObject({
@@ -71,9 +71,9 @@ export class AwsS3 implements IBaseStorageProvider {
     } catch (err) {
       throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
     }
-  }
+  };
 
-  async getPreSignedUrl(id: string): Promise<string> {
+  getPreSignedUrl = async (id: string): Promise<string> => {
     try {
       const signedUrlParams: IGetSignedUrlRequest = {
         Bucket: this.awsConfiguration.bucket,
@@ -92,12 +92,12 @@ export class AwsS3 implements IBaseStorageProvider {
       );
       throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
     }
-  }
+  };
 
-  async uploadFile(
+  uploadFile = async (
     body: Buffer | Uint8Array | Blob | string | Readable,
     fileName: string,
-  ): Promise<string> {
+  ): Promise<string> => {
     try {
       const filePath = this.getFilePath(fileName);
       const updateResponse = await this.s3
@@ -116,5 +116,5 @@ export class AwsS3 implements IBaseStorageProvider {
       this.logger.error(`unable to upload file to s3: ${JSON.stringify(err)}`);
       throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
     }
-  }
+  };
 }
