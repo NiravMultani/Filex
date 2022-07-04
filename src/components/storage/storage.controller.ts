@@ -35,7 +35,9 @@ export class StorageController {
     @Res() response: Response,
   ) {
     const file = await this.storageFactory.downloadFile(fileName);
-    response.download(file);
+    console.log(file);
+    response.setHeader('Content-Type', 'application/octet-stream');
+    response.send(file);
   }
 
   // Get pre signed URL for a file

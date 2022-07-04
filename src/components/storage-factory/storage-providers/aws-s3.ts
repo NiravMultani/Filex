@@ -63,7 +63,7 @@ export class AwsS3 implements IBaseStorageProvider {
     }
   };
 
-  downloadFile = async (id: string): Promise<string> => {
+  downloadFile = async (id: string): Promise<any> => {
     try {
       const fileData = await this.s3
         .getObject({
@@ -71,7 +71,9 @@ export class AwsS3 implements IBaseStorageProvider {
           Key: this.getFilePath(id),
         })
         .promise();
-      return fileData.Body.toString('utf-8');
+      this.logger.debug('Download file respnose : ', fileData);
+      return fileData.Body;
+      // return fileData.Body.toString('utf-8');
     } catch (err) {
       throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
     }
