@@ -1,4 +1,14 @@
-import { Controller, Get, Logger, Param, Res } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Logger,
+  Param,
+  Post,
+  Res,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { StorageFactoryService } from '../storage-factory/storage-factory.service';
 
@@ -14,6 +24,7 @@ export class StorageController {
   // Retrive files list
   @Get()
   async getFileList() {
+    // TODO: add pagination
     return this.storageFactory.listAllFiles();
   }
 
@@ -33,5 +44,17 @@ export class StorageController {
     return this.storageFactory.getPreSignedUrl(fileName);
   }
 
-  // TODO: Upload file
+  @Post('upload')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: {
+        files: 1,
+        fields: 0,
+      },
+    }),
+  )
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    console.log(file);
+    return this.storageFactory.uploadFile(file.buffer, file.originalname);
+  }
 }

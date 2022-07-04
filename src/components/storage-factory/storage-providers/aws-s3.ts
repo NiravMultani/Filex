@@ -32,10 +32,12 @@ export class AwsS3 implements IBaseStorageProvider {
     this.s3 = new AWS.S3();
   }
 
-  private getFilePath = (fileName: string) => {
-    return `${this.commonConfiguration.env}/${
-      this.awsConfiguration.uploadLocations.base
-    }/${encodeURI(fileName)}`;
+  private getFolderLocation = (): string => {
+    return `${this.commonConfiguration.env}/${this.awsConfiguration.uploadLocations.base}`;
+  };
+
+  private getFilePath = (fileName: string): string => {
+    return `${this.getFolderLocation()}/${encodeURI(fileName)}`;
   };
 
   listAllFiles = async (): Promise<string[]> => {
@@ -43,6 +45,7 @@ export class AwsS3 implements IBaseStorageProvider {
       const s3Objects = await this.s3
         .listObjects({
           Bucket: this.awsConfiguration.bucket,
+          Prefix: `${this.getFolderLocation()}`,
         })
         .promise();
       this.logger.debug(
