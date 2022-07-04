@@ -48,6 +48,7 @@ export class StorageController {
 
   @Post('upload')
   @UseInterceptors(
+    // Pass the file in form-data field called "file" from API. As it's specified below.
     FileInterceptor('file', {
       limits: {
         files: 1,

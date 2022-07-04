@@ -82,11 +82,10 @@ export class AwsS3 implements IBaseStorageProvider {
     try {
       const signedUrlParams: IGetSignedUrlRequest = {
         Bucket: this.awsConfiguration.bucket,
-        ACL: 'public-read',
         Key: this.getFilePath(id),
       };
-      const signedUrl = await this.s3.getSignedUrlPromise(
-        'putObject',
+      const signedUrl = await this.s3.getSignedUrl(
+        'getObject',
         signedUrlParams,
       );
       this.logger.log(`signed url generated successfully: ${signedUrl}`);
