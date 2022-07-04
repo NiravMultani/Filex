@@ -25,7 +25,10 @@ export class StorageController {
   @Get()
   async getFileList() {
     // TODO: add pagination
-    return this.storageFactory.listAllFiles();
+    const files = await this.storageFactory.listAllFiles();
+    return {
+      files,
+    };
   }
 
   // Download single file
@@ -43,7 +46,10 @@ export class StorageController {
   // Get pre signed URL for a file
   @Get('/signed/:fileName')
   async getPreSignedURL(@Param('fileName') fileName: string) {
-    return this.storageFactory.getPreSignedUrl(fileName);
+    const url = await this.storageFactory.getPreSignedUrl(fileName);
+    return {
+      url,
+    };
   }
 
   @Post('upload')
@@ -58,6 +64,12 @@ export class StorageController {
   )
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
     console.log(file);
-    return this.storageFactory.uploadFile(file.buffer, file.originalname);
+    const fileUploadedAtUrl = await this.storageFactory.uploadFile(
+      file.buffer,
+      file.originalname,
+    );
+    return {
+      url: fileUploadedAtUrl,
+    };
   }
 }

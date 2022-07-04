@@ -55,8 +55,9 @@ export class AwsS3 implements IBaseStorageProvider {
           2,
         )}`,
       );
-      // TODO: update return
-      return [];
+      return s3Objects.Contents.map((object) => {
+        return object.Key.split(`${this.getFolderLocation()}/`)[1];
+      });
     } catch (err) {
       this.logger.error(`unable to list all files ${JSON.stringify(err)}`);
       throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
