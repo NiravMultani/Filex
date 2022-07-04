@@ -63,13 +63,13 @@ export class AzureBlob implements IBaseStorageProvider {
     return [];
   };
 
-  downloadFile = async (id: string): Promise<string> => {
+  downloadFile = async (id: string): Promise<Buffer> => {
     const blockBlobClient = this.containerClient.getBlockBlobClient(id);
     const downloadBlockBlobResponse = await blockBlobClient.download();
     const fileBuffer = await this.streamToBuffer(
       downloadBlockBlobResponse.readableStreamBody,
     );
-    return fileBuffer.toString('utf-8');
+    return fileBuffer;
   };
 
   getPreSignedUrl = async (id: string): Promise<string> => {
