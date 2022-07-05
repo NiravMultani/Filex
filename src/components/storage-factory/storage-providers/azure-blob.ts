@@ -7,7 +7,10 @@ import {
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import azureConfigFactory from '../../../config/env-config-list/azure.config';
-import { IBaseStorageProvider } from './base-storage-provider.interface';
+import {
+  IBaseStorageProvider,
+  IFileListDetails,
+} from './base-storage-provider.interface';
 
 @Injectable()
 export class AzureBlob implements IBaseStorageProvider {
@@ -48,7 +51,7 @@ export class AzureBlob implements IBaseStorageProvider {
     });
   }
 
-  listAllFiles = async (): Promise<string[]> => {
+  listAllFiles = async (): Promise<IFileListDetails[]> => {
     const list: BlobItem[] = [];
 
     for await (const blob of this.containerClient.listBlobsFlat()) {

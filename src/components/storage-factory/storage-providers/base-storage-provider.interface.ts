@@ -1,13 +1,15 @@
-import { Readable } from 'stream';
+export interface IFileListDetails {
+  filename: string;
+  size: number;
+  lastModified: Date;
+}
 
 export interface IBaseStorageProvider {
-  // TODO: below are dummy types assigned. change when implement actual
-  listAllFiles(): Promise<Array<string>>;
+  listAllFiles(): Promise<IFileListDetails[]>;
   downloadFile(id: string): Promise<Buffer>;
   getPreSignedUrl(id: string): Promise<string>;
   uploadFile(
-    body: Buffer | Blob, // common between both azure and aws
-    // body: Buffer | Uint8Array | Blob | string | Readable, // from aws
+    body: Buffer, // common between both azure and aws
     fileName: string,
   ): Promise<string>;
 }

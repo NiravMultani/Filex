@@ -10,7 +10,10 @@ import * as AWS from 'aws-sdk';
 import { Readable } from 'stream';
 import awsConfigFactory from '../../../config/env-config-list/aws.config';
 import commonConfigFactory from '../../../config/env-config-list/common.config';
-import { IBaseStorageProvider } from './base-storage-provider.interface';
+import {
+  IBaseStorageProvider,
+  IFileListDetails,
+} from './base-storage-provider.interface';
 
 @Injectable()
 export class AwsS3 implements IBaseStorageProvider {
@@ -40,7 +43,7 @@ export class AwsS3 implements IBaseStorageProvider {
     return `${this.getFolderLocation()}/${encodeURI(fileName)}`;
   };
 
-  listAllFiles = async (): Promise<string[]> => {
+  listAllFiles = async (): Promise<IFileListDetails[]> => {
     try {
       const s3Objects = await this.s3
         .listObjects({
@@ -56,7 +59,11 @@ export class AwsS3 implements IBaseStorageProvider {
         )}`,
       );
       return s3Objects.Contents.map((object) => {
-        return object.Key.split(`${this.getFolderLocation()}/`)[1];
+        return {
+          filename: object.Key.split(`${this.getFolderLocation()}/`)[1],
+          size: object.Size,
+          lastModified: object.LastModified,
+        };
       });
     } catch (err) {
       this.logger.error(`unable to list all files ${JSON.stringify(err)}`);

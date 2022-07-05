@@ -28,10 +28,7 @@ export class StorageController {
   @Get()
   async getFileList() {
     // TODO: add pagination
-    const files = await this.storageFactory.listAllFiles();
-    return {
-      files,
-    };
+    return this.storageFactory.listAllFiles();
   }
 
   // Download single file
