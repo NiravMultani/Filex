@@ -6,13 +6,16 @@ import {
   Post,
   Res,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
+import { AuthGuard } from '../../core';
 import { StorageFactoryService } from '../storage-factory/storage-factory.service';
 
 @Controller('storage')
+@UseGuards(AuthGuard)
 export class StorageController {
   private readonly logger = new Logger(StorageController.name);
 
