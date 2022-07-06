@@ -1,5 +1,5 @@
 import {
-  BlobItem,
+  BlobSASPermissions,
   BlobServiceClient,
   ContainerClient,
   StorageSharedKeyCredential,
@@ -20,6 +20,9 @@ export class AzureBlob implements IBaseStorageProvider {
 
   private readonly containerClient: ContainerClient;
 
+  /** When creating signed URL, this will be the permissions given while accessing the file */
+  private readonly fileSharingPermissions: BlobSASPermissions;
+
   constructor(
     @Inject(azureConfigFactory.KEY)
     private readonly azureConfiguration: ConfigType<typeof azureConfigFactory>,
@@ -34,6 +37,9 @@ export class AzureBlob implements IBaseStorageProvider {
     this.containerClient = this.blobServiceClient.getContainerClient(
       this.azureConfiguration.containerName,
     );
+
+    this.fileSharingPermissions = new BlobSASPermissions();
+    this.fileSharingPermissions.read = true;
   }
 
   private streamToBuffer(
@@ -52,35 +58,34 @@ export class AzureBlob implements IBaseStorageProvider {
   }
 
   listAllFiles = async (): Promise<IFileListDetails[]> => {
-    const list: BlobItem[] = [];
+    const list: IFileListDetails[] = [];
 
     for await (const blob of this.containerClient.listBlobsFlat()) {
-      list.push(blob);
+      list.push({
+        filename: blob.name,
+        size: blob.properties.contentLength,
+        lastModified: blob.properties.lastModified,
+      });
     }
-    this.logger.debug(
-      `Objects in ${
-        this.azureConfiguration.containerName
-      } are, \n ${JSON.stringify(list, null, 2)}`,
-    );
-    // TODO: update return
-    return [];
+    return list;
   };
 
   downloadFile = async (id: string): Promise<Buffer> => {
     const blockBlobClient = this.containerClient.getBlockBlobClient(id);
     const downloadBlockBlobResponse = await blockBlobClient.download();
-    const fileBuffer = await this.streamToBuffer(
-      downloadBlockBlobResponse.readableStreamBody,
-    );
-    return fileBuffer;
+    return this.streamToBuffer(downloadBlockBlobResponse.readableStreamBody);
   };
 
   getPreSignedUrl = async (id: string): Promise<string> => {
     const blockBlobClient = this.containerClient.getBlockBlobClient(id);
-    const signedUrl = await blockBlobClient.generateSasUrl({
-      expiresOn: new Date(),
+    const currentDate = new Date();
+    // TODO: get expiry time from config
+    const expiryDate = new Date(currentDate.getTime() + 30 * 60 * 1000);
+
+    return blockBlobClient.generateSasUrl({
+      expiresOn: expiryDate,
+      permissions: this.fileSharingPermissions,
     });
-    return signedUrl;
   };
 
   uploadFile = async (
@@ -93,7 +98,6 @@ export class AzureBlob implements IBaseStorageProvider {
       'Azure upload result : ',
       JSON.stringify(uploadResult, null, 2),
     );
-    // TODO: update return
-    return 'asdf';
+    return `https://${this.azureConfiguration.accountName}.blob.core.windows.net/${this.azureConfiguration.containerName}/${fileName}`;
   };
 }
