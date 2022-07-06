@@ -1,10 +1,6 @@
 import { CloudProviders } from './consts';
 
 export function validateEnv(config: Record<string, unknown>) {
-  if (!config.PORT) {
-    throw new Error('Env variable PORT is required');
-  }
-
   if (
     !config.ACTIVE_CLOUD_SERVICE ||
     ![CloudProviders.AWS, CloudProviders.AZURE].includes(
