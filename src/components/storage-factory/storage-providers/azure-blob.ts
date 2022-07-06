@@ -11,6 +11,7 @@ import {
   IBaseStorageProvider,
   IFileListDetails,
 } from './base-storage-provider.interface';
+import { StorageProvidersService } from './storage-providers.service';
 
 @Injectable()
 export class AzureBlob implements IBaseStorageProvider {
@@ -26,6 +27,7 @@ export class AzureBlob implements IBaseStorageProvider {
   constructor(
     @Inject(azureConfigFactory.KEY)
     private readonly azureConfiguration: ConfigType<typeof azureConfigFactory>,
+    private readonly storageProviderService: StorageProvidersService,
   ) {
     this.blobServiceClient = new BlobServiceClient(
       `https://${this.azureConfiguration.accountName}.blob.core.windows.net`,
@@ -40,21 +42,6 @@ export class AzureBlob implements IBaseStorageProvider {
 
     this.fileSharingPermissions = new BlobSASPermissions();
     this.fileSharingPermissions.read = true;
-  }
-
-  private streamToBuffer(
-    readableStream: NodeJS.ReadableStream,
-  ): Promise<Buffer> {
-    return new Promise((resolve, reject) => {
-      const chunks: Buffer[] = [];
-      readableStream.on('data', (data: Buffer | string) => {
-        chunks.push(data instanceof Buffer ? data : Buffer.from(data));
-      });
-      readableStream.on('end', () => {
-        resolve(Buffer.concat(chunks));
-      });
-      readableStream.on('error', reject);
-    });
   }
 
   listAllFiles = async (): Promise<IFileListDetails[]> => {
@@ -73,7 +60,9 @@ export class AzureBlob implements IBaseStorageProvider {
   downloadFile = async (id: string): Promise<Buffer> => {
     const blockBlobClient = this.containerClient.getBlockBlobClient(id);
     const downloadBlockBlobResponse = await blockBlobClient.download();
-    return this.streamToBuffer(downloadBlockBlobResponse.readableStreamBody);
+    return this.storageProviderService.streamToBuffer(
+      downloadBlockBlobResponse.readableStreamBody,
+    );
   };
 
   getPreSignedUrl = async (id: string): Promise<string> => {

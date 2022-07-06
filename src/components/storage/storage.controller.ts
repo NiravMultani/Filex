@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Controller,
   Get,
   Logger,
@@ -25,20 +26,23 @@ export class StorageController {
   ) {}
 
   // Retrive files list
-  @Get()
+  @Get('/list')
   async getFileList() {
     // TODO: add pagination
     return this.storageFactory.listAllFiles();
   }
 
   // Download single file
-  @Get('/:fileName')
+  @Get('/download/:fileName')
   async downloadFile(
     @Param('fileName') fileName: string,
     @Res() response: Response,
   ) {
-    const file = await this.storageFactory.downloadFile(fileName);
-    console.log(file);
+    this.logger.log(`Download file : ${fileName}`);
+    if (!fileName || fileName === '') {
+      throw new BadRequestException(null, `param 'fileName' is missing`);
+    }
+    const file = await this.storageFactory.downloadFile(encodeURI(fileName));
     response.setHeader('Content-Type', 'application/octet-stream');
     response.send(file);
   }
@@ -46,7 +50,10 @@ export class StorageController {
   // Get pre signed URL for a file
   @Get('/signed/:fileName')
   async getPreSignedURL(@Param('fileName') fileName: string) {
-    const url = await this.storageFactory.getPreSignedUrl(fileName);
+    if (!fileName || fileName === '') {
+      throw new BadRequestException(null, `param 'fileName' is missing`);
+    }
+    const url = await this.storageFactory.getPreSignedUrl(encodeURI(fileName));
     return {
       url,
     };
@@ -63,10 +70,15 @@ export class StorageController {
     }),
   )
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
-    console.log(file);
+    if (!file) {
+      throw new BadRequestException(
+        null,
+        `field 'file' is required as form-data`,
+      );
+    }
     const fileUploadedAtUrl = await this.storageFactory.uploadFile(
       file.buffer,
-      file.originalname,
+      encodeURI(file.originalname),
     );
     return {
       url: fileUploadedAtUrl,

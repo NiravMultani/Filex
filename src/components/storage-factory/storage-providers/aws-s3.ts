@@ -9,7 +9,6 @@ import { ConfigType } from '@nestjs/config';
 import * as AWS from 'aws-sdk';
 import { Readable } from 'stream';
 import awsConfigFactory from '../../../config/env-config-list/aws.config';
-import commonConfigFactory from '../../../config/env-config-list/common.config';
 import {
   IBaseStorageProvider,
   IFileListDetails,
@@ -24,10 +23,6 @@ export class AwsS3 implements IBaseStorageProvider {
   constructor(
     @Inject(awsConfigFactory.KEY)
     private readonly awsConfiguration: ConfigType<typeof awsConfigFactory>,
-    @Inject(commonConfigFactory.KEY)
-    private readonly commonConfiguration: ConfigType<
-      typeof commonConfigFactory
-    >,
   ) {
     AWS.config.update({
       region: this.awsConfiguration.region,
@@ -35,20 +30,11 @@ export class AwsS3 implements IBaseStorageProvider {
     this.s3 = new AWS.S3();
   }
 
-  private getFolderLocation = (): string => {
-    return `${this.commonConfiguration.env}/${this.awsConfiguration.uploadLocations.base}`;
-  };
-
-  private getFilePath = (fileName: string): string => {
-    return `${this.getFolderLocation()}/${encodeURI(fileName)}`;
-  };
-
   listAllFiles = async (): Promise<IFileListDetails[]> => {
     try {
       const s3Objects = await this.s3
         .listObjects({
           Bucket: this.awsConfiguration.bucket,
-          Prefix: `${this.getFolderLocation()}`,
         })
         .promise();
       this.logger.debug(
@@ -60,7 +46,7 @@ export class AwsS3 implements IBaseStorageProvider {
       );
       return s3Objects.Contents.map((object) => {
         return {
-          filename: object.Key.split(`${this.getFolderLocation()}/`)[1],
+          filename: object.Key,
           size: object.Size,
           lastModified: object.LastModified,
         };
@@ -76,7 +62,7 @@ export class AwsS3 implements IBaseStorageProvider {
       const fileData = await this.s3
         .getObject({
           Bucket: this.awsConfiguration.bucket,
-          Key: this.getFilePath(id),
+          Key: id,
         })
         .promise();
       this.logger.debug('Download file respnose : ', fileData);
@@ -90,7 +76,7 @@ export class AwsS3 implements IBaseStorageProvider {
     try {
       const signedUrlParams: IGetSignedUrlRequest = {
         Bucket: this.awsConfiguration.bucket,
-        Key: this.getFilePath(id),
+        Key: id,
       };
       const signedUrl = await this.s3.getSignedUrl(
         'getObject',
@@ -111,19 +97,18 @@ export class AwsS3 implements IBaseStorageProvider {
     fileName: string,
   ): Promise<string> => {
     try {
-      const filePath = this.getFilePath(fileName);
       const updateResponse = await this.s3
         .putObject({
           Bucket: this.awsConfiguration.bucket,
           Body: body,
-          Key: filePath,
+          Key: fileName,
         })
         .promise();
       this.logger.debug(
         `upload response : ${JSON.stringify(updateResponse, null, 2)}`,
       );
       // return URL location of uploaded file
-      return `https://${this.awsConfiguration.bucket}.s3-${this.s3.config.region}.amazonaws.com/${filePath}`;
+      return `https://${this.awsConfiguration.bucket}.s3-${this.s3.config.region}.amazonaws.com/${fileName}`;
     } catch (err) {
       this.logger.error(`unable to upload file to s3: ${JSON.stringify(err)}`);
       throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
