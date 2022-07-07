@@ -11,18 +11,19 @@ A cloud agnostic service to handle file upload &amp; retrieve. It's to be used w
 **Server:** Node, Express, NestJS
 
 
-## Run Locally
+
+## Run the project
 
 Clone the project
 
 ```bash
-  git clone https://link-to-project
+  git clone https://github.com/NiravMultani/Filex.git
 ```
 
 Go to the project directory
 
 ```bash
-  cd my-project
+  cd Filex
 ```
 
 Install dependencies
@@ -34,54 +35,52 @@ Install dependencies
 Copy `.env.example` file as `.env` and set the environment variables.
 The file has comments which variable is used for what.
 
-### Start server with docker
+Now you can choose if you want to start server with `NestJS` or `Docker`. Choose one of the method to start server. If you just want to test APIs, start without docker.
+
+### Start server
+
+Run following command in terminal
+
+```bash
+ npm run start
+```
+
+### Or start server with docker
+
+If you're familiar with Docker and want to use that then follow this method.
+
 Build the docker image,
 
 ```bash
-  docker build -t filex:latest
+ docker build -t filex:latest .
 ```
 
 Run the image,
 
-```bash
-  docker run filex:latest
-```
-
-### Start server without docker
-
-Start the server
+ 	For development,
 
 ```bash
-  npm run start
+ docker compose -f "docker-compose-prod.yml" up -d
 ```
 
 
-## Deployment
 
-### Deployment using Docker
-
-To deploy this project run
-
-```bash
-  docker build -t filex:latest
-```
-
-### Deployment with PM2 or other process management
-
-Build the project and have `dist` in the server with cloned project.
-
-```bash
-  npm run build
-```
-
-start the npm command in process manager,
-
-```bash
-  npm run start
-```
 ## API Reference
 
-Find postman collection for API here
+It has 4 APIs,
+
+- Upload file
+- List all files
+- Download a file
+- Get pre-signed URL
+
+Pre-signed URL is a temporary/self-expiration URL which can be given to someone for secure access.
+
+**Find postman collection for the API in `docs/`  [directory of the project](https://github.com/NiravMultani/Filex/tree/main/docs).**
+
+Don't forget to set Postman envrionment variables after importing the collection.
+You'll need to set `BaseURL` & `Authorization`.
+For local `BaseURL` will be `http://localhost:3000` and `Authorization` will be `API_KEY` that you use in `.env` file.
 
 
 ## Authors
