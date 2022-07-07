@@ -1,0 +1,16 @@
+# This is to be used in prod env
+
+version: '3.7'
+
+services:
+  main:
+    image: filex:latest
+    build:
+      context: .
+      target: production
+    ports:
+      - ${PORT}:${PORT:?err}
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production

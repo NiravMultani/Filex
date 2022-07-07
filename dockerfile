@@ -19,8 +19,11 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
+# Reset prepare script of npm to avoid install husky since it's dev-dependency & we don't have it here
+RUN npm set-script prepare ""
+
 RUN npm install --only=production
 
 COPY --from=development /usr/src/app/dist ./dist
 
-CMD ["npm", "start"]
+CMD ["npm", "run", "start:prod"]

@@ -1,0 +1,27 @@
+# https://blog.logrocket.com/containerized-development-nestjs-docker/
+
+# This is to be used in Development
+# It watches file changes & reflects them to docker
+
+version: '3.7'
+
+services:
+  main:
+    # container_name: main
+    image: filex:latest
+    build:
+      context: .
+      target: development
+    volumes:
+      # Attaches current directory to docker container to watch file changes
+      - .:/usr/src/app
+      # Node modules changes will not be overwritten by below line
+      # If you want to re-install npm packages then run `docker-compose up --build -V`
+      - /usr/src/app/node_modules
+    ports:
+      - ${PORT}:${PORT:?err}  # If you haven't set env variable PORT in .env file then it will give error & won't start container
+    #   # IDE Debugging port
+      - 9229:9229
+    command: npm run start:dev
+    env_file:
+      - .env
