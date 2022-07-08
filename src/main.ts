@@ -8,7 +8,12 @@ import { EnvNamespaces } from './config';
 const logger = new Logger('Main');
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger:
+      process.env.NODE_ENV === 'development'
+        ? ['log', 'debug', 'error', 'verbose', 'warn']
+        : ['log', 'error', 'warn'],
+  });
   app.use(helmet());
 
   const configService = app.get(ConfigService);
